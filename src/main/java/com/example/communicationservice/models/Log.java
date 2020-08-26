@@ -4,8 +4,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -16,8 +18,15 @@ public class Log {
     @Id
     private UUID logUid;
 
-    @ManyToOne
-    private User user;
-    private String content;
+    private String username;
+    @Enumerated(EnumType.STRING)
+    private ActionType actionType;
+    private Date createdDate;
 
+    public Log(String username, ActionType actionType) {
+        this.logUid = UUID.randomUUID();
+        this.username = username;
+        this.actionType = actionType;
+        this.createdDate = new Date();
+    }
 }
