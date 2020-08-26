@@ -3,6 +3,7 @@ package ir.vizika.net;
 import ir.vizika.io.Resource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -16,12 +17,30 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-public class Connection {
+public class ServerProcesses {
 
     private String baseUrl = "http://localhost:8080/file";
 
+    public List<String> listOfFileNames() {
+        List<String> result = new ArrayList<>();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet get = new HttpGet(baseUrl);
+            try (CloseableHttpResponse response = httpClient.execute(get)) {
+                InputStream content = response.getEntity().getContent();
+
+                Resource resource = new Resource();
+                result = resource.convertInputStreamToList(content);
+                return result;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public boolean uploadFile(File file, String urlPath) {
         String url = baseUrl.concat("/").concat(urlPath);
