@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class VizikaUserDetails implements UserDetails {
 
@@ -18,7 +17,7 @@ public class VizikaUserDetails implements UserDetails {
     public VizikaUserDetails(User user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
-        this.authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().toString()));
+        this.authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
     }
 
     @Override
