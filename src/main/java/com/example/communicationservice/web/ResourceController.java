@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping(
         path = "/file"
@@ -19,6 +22,12 @@ public class ResourceController {
 
     @Autowired
     private StorageService storageService;
+
+    @GetMapping
+    public ResponseEntity<List<String>> getListOfFiles() {
+        List<String> files = storageService.listOfFiles();
+        return ResponseEntity.ok(files);
+    }
 
     @PostMapping("/user/upload")
     public void textUploadFile(@RequestParam("file") MultipartFile file) {
