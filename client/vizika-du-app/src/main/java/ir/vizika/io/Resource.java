@@ -1,10 +1,13 @@
 package ir.vizika.io;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import org.json.JSONArray;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Resource {
 
@@ -29,4 +32,25 @@ public class Resource {
         }
         return true;
     }
+
+    public List<String> convertInputStreamToList(InputStream inputStream) {
+        String jsonString = convertStreamToString(inputStream);
+        JSONArray jsonArray = convertStringToJsonObject(jsonString);
+        List<String> files = new ArrayList<>();
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            files.add(jsonArray.getString(i));
+        }
+        return files;
+    }
+
+    private String convertStreamToString(InputStream inputStream) {
+        return new BufferedReader(new InputStreamReader(inputStream))
+                .lines().collect(Collectors.joining("\n"));
+    }
+
+    private JSONArray convertStringToJsonObject(String json) {
+        return new JSONArray(json);
+    }
+
 }
