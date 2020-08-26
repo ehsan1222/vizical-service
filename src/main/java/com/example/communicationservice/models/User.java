@@ -3,11 +3,7 @@ package com.example.communicationservice.models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +17,8 @@ public class User {
     @Column(unique = true)
     private String username;
     private String password;
+
+    @Enumerated(EnumType.STRING)
     private Roles role;
 
     public User(String username, String password, Roles role) {
