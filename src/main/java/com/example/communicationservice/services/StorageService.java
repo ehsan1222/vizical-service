@@ -1,7 +1,6 @@
 package com.example.communicationservice.services;
 
 import com.example.communicationservice.exceptions.FileNotExistException;
-import com.example.communicationservice.models.ActionType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -36,14 +35,30 @@ public class StorageService {
     }
 
     public List<String> listOfFiles() {
-        List<String> fileNames = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>(getUserList());
+        fileNames.addAll(getAdminList());
+//        logService.addNewLog(ActionType.FILE_SHOW);
+        return fileNames;
+    }
 
+    private List<String> getUserList() {
+        List<String> fileNames = new ArrayList<>();
         try {
             if (new File(userDirectory).isDirectory()) {
                 Files.walk(Paths.get(userDirectory))
                         .filter(Files::isRegularFile)
                         .forEach(path -> fileNames.add(path.getFileName().toString()));
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileNames;
+    }
+
+    public List<String> getAdminList() {
+        List<String> fileNames = new ArrayList<>();
+
+        try {
             if (new File(adminDirectory).isDirectory()) {
                 Files.walk(Paths.get(adminDirectory))
                         .filter(Files::isRegularFile)
@@ -56,33 +71,32 @@ public class StorageService {
         return fileNames;
     }
 
-
-    public void userUploadFile(MultipartFile file) {
-        checkFileExtensionIsPermitted(file, "txt");
+    public void userSaveFile(MultipartFile file) {
+        checkFileExtensionIsPermitted(file, "mxe");
 
         String absolutePath = createDirectoryIfNotExist(userDirectory);
 
-        transferFile(file, absolutePath);
-//        logService.addNewLog(ActionType.TXT_FILE_UPLOAD);
+        saveFile(file, absolutePath);
+//        logService.addNewLog(ActionType.MXE_FILE_UPLOAD);
     }
 
-    public void adminUploadFile(MultipartFile file) {
+    public void adminSaveFile(MultipartFile file) {
         checkFileExtensionIsPermitted(file, "jar");
 
         String absolutePath = createDirectoryIfNotExist(adminDirectory);
 
-        transferFile(file, absolutePath);
+        saveFile(file, absolutePath);
 //        logService.addNewLog(ActionType.JAR_FILE_UPLOAD);
     }
 
-    public Resource download(String fileName) {
+    public Resource getFile(String fileName) {
         String fileExtension = getFileExtension(fileName);
-        if (fileExtension.equals("txt")) {
-            Resource fileFromLocalStorage = getFileFromLocalStorage(fileName, userDirectory);
+        if (fileExtension.equals("mxe")) {
+            Resource fileFromLocalStorage = getFile(fileName, userDirectory);
 //            logService.addNewLog(ActionType.FILE_DOWNLOAD);
             return fileFromLocalStorage;
         } else if (fileExtension.equals("jar")) {
-            Resource fileFromLocalStorage = getFileFromLocalStorage(fileName, adminDirectory);
+            Resource fileFromLocalStorage = getFile(fileName, adminDirectory);
 //            logService.addNewLog(ActionType.FILE_DOWNLOAD);
             return fileFromLocalStorage;
         } else {
@@ -90,9 +104,9 @@ public class StorageService {
         }
     }
 
-    public boolean isFileExist(String fileName) {
+    public boolean checkFileExist(String fileName) {
         String fileExtension = getFileExtension(fileName);
-        if (fileExtension.equals("txt")) {
+        if (fileExtension.equals("mxe")) {
             boolean isExisted = checkFileExist(fileName, userDirectory);
 //            logService.addNewLog(ActionType.CHECK_FILE_EXIST);
             return isExisted;
@@ -105,6 +119,13 @@ public class StorageService {
         }
     }
 
+    private boolean checkFileExist(String fileName, String baseDirectory) {
+        String absolutePath =
+                new File(baseDirectory).getAbsolutePath().concat(File.separator).concat(fileName);
+
+        return new File(absolutePath).isFile();
+    }
+
     private void checkFileExtensionIsPermitted(MultipartFile file, String... extensions) {
         // TODO: change check file extension algorithm to find type of file with not extension
         if(file == null || file.getOriginalFilename() == null) {
@@ -114,22 +135,15 @@ public class StorageService {
         if (lastIndexOf != -1 && lastIndexOf < file.getOriginalFilename().length()) {
             String fileExtension = file.getOriginalFilename().substring(lastIndexOf + 1);
 
-            long count = Stream.of(extensions)
+            long numberOfPermittedExtensions = Stream.of(extensions)
                     .filter(s -> s.equals(fileExtension))
                     .count();
             // check file extension is valid
-            if (count > 0) {
+            if (numberOfPermittedExtensions > 0) {
                 return;
             }
         }
         throw new IllegalArgumentException("invalid file");
-    }
-
-    private boolean checkFileExist(String fileName, String baseDirectory) {
-        String absolutePath =
-                new File(baseDirectory).getAbsolutePath().concat(File.separator).concat(fileName);
-
-        return new File(absolutePath).isFile();
     }
 
     private String getFileExtension(String fileName) {
@@ -140,7 +154,7 @@ public class StorageService {
         return fileName.substring(dotIndex + 1);
     }
 
-    private void transferFile(MultipartFile file, String absolutePath) {
+    private void saveFile(MultipartFile file, String absolutePath) {
         if (file == null || file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("invalid file");
         }
@@ -161,7 +175,7 @@ public class StorageService {
     }
 
 
-    private Resource getFileFromLocalStorage(String fileName, String baseDirectory) {
+    private Resource getFile(String fileName, String baseDirectory) {
         String downloadFilePath =
                 new File(baseDirectory).getAbsolutePath().concat(File.separator).concat(fileName);
 
@@ -172,8 +186,7 @@ public class StorageService {
 
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
-            InputStreamResource resource = new InputStreamResource(fileInputStream);
-            return resource;
+            return new InputStreamResource(fileInputStream);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
