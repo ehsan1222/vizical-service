@@ -35,3 +35,5 @@ build/
 
 ### storage file ###
 /files/*
+src/test/*
+test.txt
