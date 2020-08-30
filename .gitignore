@@ -37,4 +37,5 @@ build/
 /files/*
 src/test/*
 client/vizika-du-app/downloads/*
+client/vizika-client-user/updates/*
 test.txt
