@@ -1928,16 +1928,16 @@ public class EditorActions {
 
             // Adds file filter for supported file format
             DefaultFileFilter defaultFilter = new DefaultFileFilter(".mxe",
-                    mxResources.get("allSupportedFormats") + " (.jar)") {
+                    mxResources.get("allSupportedFormats") + " (.mxe)") {
                 public boolean accept(File file) {
-                    String lcase = file.getName().toLowerCase();
+                    String lowerCase = file.getName().toLowerCase();
 
-                    return lcase.endsWith(".jar");
+                    return lowerCase.endsWith(".mxe");
                 }
             };
 
             fc.setFileFilter(defaultFilter);
-            fc.setAcceptAllFileFilterUsed(false);
+            // fc.setAcceptAllFileFilterUsed(false);
 
             int uploadResult = fc.showDialog(null, mxResources.get("uploadFile"));
 
