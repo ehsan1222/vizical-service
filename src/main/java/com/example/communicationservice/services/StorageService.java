@@ -1,6 +1,7 @@
 package com.example.communicationservice.services;
 
 import com.example.communicationservice.exceptions.FileNotExistException;
+import com.example.communicationservice.models.ActionType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -37,7 +38,7 @@ public class StorageService {
     public List<String> listOfFiles() {
         List<String> fileNames = new ArrayList<>(getUserList());
         fileNames.addAll(getAdminList());
-//        logService.addNewLog(ActionType.FILE_SHOW);
+        logService.addNewLog(ActionType.FILE_SHOW);
         return fileNames;
     }
 
@@ -67,7 +68,7 @@ public class StorageService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        logService.addNewLog(ActionType.FILE_SHOW);
+        logService.addNewLog(ActionType.FILE_SHOW);
         return fileNames;
     }
 
@@ -77,7 +78,7 @@ public class StorageService {
         String absolutePath = createDirectoryIfNotExist(userDirectory);
 
         saveFile(file, absolutePath);
-//        logService.addNewLog(ActionType.MXE_FILE_UPLOAD);
+        logService.addNewLog(ActionType.MXE_FILE_UPLOAD);
     }
 
     public void adminSaveFile(MultipartFile file) {
@@ -86,18 +87,18 @@ public class StorageService {
         String absolutePath = createDirectoryIfNotExist(adminDirectory);
 
         saveFile(file, absolutePath);
-//        logService.addNewLog(ActionType.JAR_FILE_UPLOAD);
+        logService.addNewLog(ActionType.JAR_FILE_UPLOAD);
     }
 
     public Resource getFile(String fileName) {
         String fileExtension = getFileExtension(fileName);
         if (fileExtension.equals("mxe")) {
             Resource fileFromLocalStorage = getFile(fileName, userDirectory);
-//            logService.addNewLog(ActionType.FILE_DOWNLOAD);
+            logService.addNewLog(ActionType.FILE_DOWNLOAD);
             return fileFromLocalStorage;
         } else if (fileExtension.equals("jar")) {
             Resource fileFromLocalStorage = getFile(fileName, adminDirectory);
-//            logService.addNewLog(ActionType.FILE_DOWNLOAD);
+            logService.addNewLog(ActionType.FILE_DOWNLOAD);
             return fileFromLocalStorage;
         } else {
             throw new IllegalArgumentException("invalid file extension " + fileExtension);
@@ -108,11 +109,11 @@ public class StorageService {
         String fileExtension = getFileExtension(fileName);
         if (fileExtension.equals("mxe")) {
             boolean isExisted = checkFileExist(fileName, userDirectory);
-//            logService.addNewLog(ActionType.CHECK_FILE_EXIST);
+            logService.addNewLog(ActionType.CHECK_FILE_EXIST);
             return isExisted;
         } else if (fileExtension.equals("jar")) {
             boolean isExisted = checkFileExist(fileName, adminDirectory);
-//            logService.addNewLog(ActionType.CHECK_FILE_EXIST);
+            logService.addNewLog(ActionType.CHECK_FILE_EXIST);
             return isExisted;
         } else {
             return false;
