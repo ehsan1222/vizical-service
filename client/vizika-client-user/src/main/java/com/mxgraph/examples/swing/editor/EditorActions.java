@@ -1917,12 +1917,57 @@ public class EditorActions {
         }
     }
 
+    @Log4j2
     public static class UploadAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent e) {
 
+            String wd = System.getProperty("user.dir");
 
+            JFileChooser fc = new JFileChooser(wd);
 
+            // Adds file filter for supported file format
+            DefaultFileFilter defaultFilter = new DefaultFileFilter(".mxe",
+                    mxResources.get("allSupportedFormats") + " (.jar)") {
+                public boolean accept(File file) {
+                    String lcase = file.getName().toLowerCase();
+
+                    return lcase.endsWith(".jar");
+                }
+            };
+
+            fc.setFileFilter(defaultFilter);
+            fc.setAcceptAllFileFilterUsed(false);
+
+            int uploadResult = fc.showDialog(null, mxResources.get("uploadFile"));
+
+            if (uploadResult == JFileChooser.APPROVE_OPTION) {
+                new Thread(() -> {
+                    ServerInteraction serverInteraction = new ServerInteraction();
+                    File selectedFile = fc.getSelectedFile();
+                    if (serverInteraction.checkFilenameExist(selectedFile.getName())) {
+                        int dialogResult = JOptionPane.showConfirmDialog(null,
+                                "File exist in server! Do you want replace this file?",
+                                "Warning",
+                                JOptionPane.YES_NO_OPTION);
+                        if (dialogResult == JOptionPane.YES_OPTION) {
+                            if (serverInteraction.uploadFile(selectedFile)) {
+                                log.info("Upload complete");
+                                JOptionPane.showMessageDialog(null, "Upload complete.");
+                                return;
+                            }
+                        }
+                    } else {
+                        if (serverInteraction.uploadFile(selectedFile)) {
+                            log.info("Upload complete");
+                            JOptionPane.showMessageDialog(null, "Upload complete.");
+                            return;
+                        }
+                    }
+                    log.info("Upload failed");
+                    JOptionPane.showMessageDialog(null, "Upload failed.");
+                }).start();
+            }
         }
 
     }
@@ -1932,20 +1977,22 @@ public class EditorActions {
 
         public void actionPerformed(ActionEvent e) {
             log.info("update process starting ...");
-            ServerInteraction si = new ServerInteraction();
-            FileManager fileManager = new FileManager();
+            new Thread(() -> {
+                ServerInteraction si = new ServerInteraction();
+                FileManager fileManager = new FileManager();
 
-            List<String> jarFilenames = si.getJarFilenames();
+                List<String> jarFilenames = si.getJarFilenames();
 
-            for (String filename : jarFilenames) {
-                byte[] file = si.downloadFile(filename);
-                if (file != null) {
-                    fileManager.saveFile(file, filename);
+                for (String filename : jarFilenames) {
+                    byte[] file = si.downloadFile(filename);
+                    if (file != null) {
+                        fileManager.saveFile(file, filename);
+                    }
                 }
-            }
 
-            log.info("update process finish ...");
-            JOptionPane.showMessageDialog(null, "Update complete.");
+                log.info("update process finish ...");
+                JOptionPane.showMessageDialog(null, "Update complete.");
+            }).start();
         }
 
     }
