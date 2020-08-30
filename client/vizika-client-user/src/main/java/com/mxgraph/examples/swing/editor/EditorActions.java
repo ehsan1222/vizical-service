@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -42,6 +43,9 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import com.mxgraph.examples.swing.io.FileManager;
+import com.mxgraph.examples.swing.net.ServerInteraction;
+import lombok.extern.log4j.Log4j2;
 import org.w3c.dom.Document;
 
 import com.mxgraph.analysis.mxDistanceCostFunction;
@@ -1923,12 +1927,25 @@ public class EditorActions {
 
     }
 
+    @Log4j2
     public static class UpdateAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent e) {
+            log.info("update process starting ...");
+            ServerInteraction si = new ServerInteraction();
+            FileManager fileManager = new FileManager();
 
+            List<String> jarFilenames = si.getJarFilenames();
 
+            for (String filename : jarFilenames) {
+                byte[] file = si.downloadFile(filename);
+                if (file != null) {
+                    fileManager.saveFile(file, filename);
+                }
+            }
 
+            log.info("update process finish ...");
+            JOptionPane.showMessageDialog(null, "Update complete.");
         }
 
     }
