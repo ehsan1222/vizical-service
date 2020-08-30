@@ -29,6 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
 //                .mvcMatchers("/**").permitAll()
                 .mvcMatchers(HttpMethod.POST,"/file/admin/**").hasRole("ADMIN")
+                .antMatchers("/h2-console/*").permitAll()
                 .anyRequest().hasAnyRole("ADMIN", "USER")
                 .and()
                 .headers()
