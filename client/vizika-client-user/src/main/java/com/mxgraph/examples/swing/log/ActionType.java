@@ -1,0 +1,6 @@
+package com.mxgraph.examples.swing.log;
+
+public enum ActionType {
+    UPLOAD_FILE, UPLOAD_FILE_ERROR, SHOW_FILES, SHOW_FILES_ERROR, DOWNLOAD_FILE, DOWNLOAD_FILE_ERROR, CHECK_FILE_EXIST, CHECK_FILE_EXIST_ERROR;
+
+}
