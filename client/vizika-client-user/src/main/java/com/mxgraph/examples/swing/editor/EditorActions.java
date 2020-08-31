@@ -28,24 +28,18 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import com.mxgraph.examples.swing.helper.StatusMessageAdapter;
 import com.mxgraph.examples.swing.io.FileManager;
 import com.mxgraph.examples.swing.net.ServerInteraction;
 import lombok.extern.log4j.Log4j2;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import com.mxgraph.analysis.mxDistanceCostFunction;
@@ -1917,8 +1911,10 @@ public class EditorActions {
         }
     }
 
-    @Log4j2
+//    @Log4j2
     public static class UploadAction extends AbstractAction {
+
+        Logger logger = Logger.getLogger(UploadAction.class);
 
         public void actionPerformed(ActionEvent e) {
 
@@ -1952,19 +1948,19 @@ public class EditorActions {
                                 JOptionPane.YES_NO_OPTION);
                         if (dialogResult == JOptionPane.YES_OPTION) {
                             if (serverInteraction.uploadFile(selectedFile)) {
-                                log.info("Upload complete");
+                                logger.info("Upload complete");
                                 JOptionPane.showMessageDialog(null, "Upload complete.");
                                 return;
                             }
                         }
                     } else {
                         if (serverInteraction.uploadFile(selectedFile)) {
-                            log.info("Upload complete");
+                            logger.info("Upload complete");
                             JOptionPane.showMessageDialog(null, "Upload complete.");
                             return;
                         }
                     }
-                    log.info("Upload failed");
+                    logger.info("Upload failed");
                     JOptionPane.showMessageDialog(null, "Upload failed.");
                 }).start();
             }
@@ -1972,11 +1968,14 @@ public class EditorActions {
 
     }
 
-    @Log4j2
+//    @Log4j2
     public static class UpdateAction extends AbstractAction {
 
+    Logger logger = Logger.getLogger(UpdateAction.class);
+
         public void actionPerformed(ActionEvent e) {
-            log.info("update process starting ...");
+            // log.info("update process starting ...");
+            logger.info("update process starting ...");
             new Thread(() -> {
                 ServerInteraction si = new ServerInteraction();
                 FileManager fileManager = new FileManager();
@@ -1990,9 +1989,30 @@ public class EditorActions {
                     }
                 }
 
-                log.info("update process finish ...");
+//                log.info("update process finish ...");
+                logger.info("update process finish ...");
                 JOptionPane.showMessageDialog(null, "Update complete.");
             }).start();
+        }
+
+    }
+
+
+    @Log4j2
+    public static class ShowLogAction extends AbstractAction {
+
+        private final JFrame jFrame;
+
+        public ShowLogAction(JFrame jFrame) {
+            this.jFrame = jFrame;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+
+            if (!jFrame.isVisible()) {
+                jFrame.setVisible(true);
+            }
+
         }
 
     }

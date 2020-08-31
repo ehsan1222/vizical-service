@@ -6,13 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.AbstractAction;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
-import javax.swing.UIManager;
+import javax.swing.*;
 
 import com.mxgraph.analysis.StructuralException;
 import com.mxgraph.analysis.mxGraphProperties.GraphType;
@@ -22,6 +16,7 @@ import com.mxgraph.analysis.mxGraphStructure;
 import com.mxgraph.analysis.mxTraversal;
 import com.mxgraph.costfunction.mxCostFunction;
 import com.mxgraph.examples.swing.editor.EditorActions.*;
+import com.mxgraph.examples.swing.helper.StatusMessageAdapter;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.swing.util.mxGraphActions;
@@ -30,6 +25,7 @@ import com.mxgraph.util.mxPoint;
 import com.mxgraph.util.mxResources;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxGraphView;
+import org.apache.log4j.Logger;
 
 public class EditorMenuBar extends JMenuBar
 {
@@ -66,6 +62,10 @@ public class EditorMenuBar extends JMenuBar
 		menu.add(editor.bind(mxResources.get("saveAs"), new SaveAction(true), "/com/mxgraph/examples/swing/images/saveas.gif"));
 		menu.add(editor.bind(mxResources.get("uploadAFile"), new UploadAction(), "/com/mxgraph/examples/swing/images/saveas.gif"));
 		menu.add(editor.bind(mxResources.get("UpdateApplication"), new UpdateAction(), "/com/mxgraph/examples/swing/images/saveas.gif"));
+
+		// basic log4j config for using log in swing and return log frame show
+		JFrame jFrame = getJFrameAndSetLogSwingAppenderConfig();
+		menu.add(editor.bind(mxResources.get("showLogs"), new ShowLogAction(jFrame), "/com/mxgraph/examples/swing/images/saveas.gif"));
 
 		menu.addSeparator();
 
@@ -481,6 +481,25 @@ public class EditorMenuBar extends JMenuBar
 				editor.about();
 			}
 		});
+	}
+
+	private JFrame getJFrameAndSetLogSwingAppenderConfig() {
+		JFrame jFrame = new JFrame();
+		JTextArea jTextArea = new JTextArea();
+		JScrollPane jp = new JScrollPane(jTextArea);
+
+		jp.setBounds(5, 5, 1170, 550);
+		jp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		jp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		jFrame.add(jp);
+
+		jFrame.setSize(1200, 600);
+		jFrame.setLayout(null);
+		jFrame.setVisible(false);
+
+		StatusMessageAdapter appender = new StatusMessageAdapter(jTextArea);
+		Logger.getRootLogger().addAppender(appender);
+		return jFrame;
 	}
 
 	/**
