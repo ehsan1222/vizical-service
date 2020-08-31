@@ -626,8 +626,7 @@ public class GraphEditor extends BasicGraphEditor
 		/**
 		 * Overrides the method to use the currently selected edge template for
 		 * new edges.
-		 * 
-		 * @param graph
+		 *
 		 * @param parent
 		 * @param id
 		 * @param value
