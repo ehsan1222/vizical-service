@@ -50,7 +50,8 @@ public class ResourceController {
 
     @GetMapping("/{fileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("fileName") String fileName) {
-        Resource file = storageService.getFile(fileName);
+        String decodedFilename = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+        Resource file = storageService.getFile(decodedFilename);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(file);

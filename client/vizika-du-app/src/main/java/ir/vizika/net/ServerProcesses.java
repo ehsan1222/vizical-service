@@ -16,6 +16,8 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -25,13 +27,15 @@ public class ServerProcesses {
 
     public static final String HEADER_AUTHENTICATE = "Authorization";
     public static final String AUTHENTICATE_PREFIX = "Basic ";
+    public static final String USER = "admin";
+    public static final String PASSWORD = "admin";
     private final String baseUrl = "http://localhost:8080/files";
 
     public List<String> listOfFileNames() {
         List<String> result = new ArrayList<>();
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet get = new HttpGet(baseUrl);
-            String encodedAuthenticate = encodeAuthenticateHeader("user", "password");
+            HttpGet get = new HttpGet(this.baseUrl);
+            String encodedAuthenticate = encodeAuthenticateHeader(USER, PASSWORD);
             get.addHeader(HEADER_AUTHENTICATE, AUTHENTICATE_PREFIX + encodedAuthenticate);
             try (CloseableHttpResponse response = httpClient.execute(get)) {
                 if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -51,7 +55,13 @@ public class ServerProcesses {
     public boolean uploadFile(File file, String urlPath) {
         String url = baseUrl.concat("/").concat(urlPath);
 
-        boolean isFileExisted         = isFileExistInServer(file.getName());
+        // incorrect file selected
+        if (!file.isFile()) {
+            return false;
+        }
+
+        String encodedFilename = URLEncoder.encode(file.getName(), StandardCharsets.UTF_8);
+        boolean isFileExisted         = isFileExistInServer(encodedFilename);
         boolean continueUploadProcess = true;
 
         if (isFileExisted) {
@@ -68,7 +78,7 @@ public class ServerProcesses {
         if (continueUploadProcess) {
             try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
                 HttpPost post = new HttpPost(url);
-                String encodedAuthenticate = encodeAuthenticateHeader("user", "password");
+                String encodedAuthenticate = encodeAuthenticateHeader(USER, PASSWORD);
                 post.addHeader(HEADER_AUTHENTICATE, AUTHENTICATE_PREFIX + encodedAuthenticate);
 
                 FileBody fileBody = new FileBody(file, ContentType.DEFAULT_BINARY);
@@ -82,7 +92,7 @@ public class ServerProcesses {
                 try (CloseableHttpResponse response = httpClient.execute(post)) {
 
                     int statusCode = response.getStatusLine().getStatusCode();
-                    System.out.println(statusCode);
+//                    System.out.println(statusCode);
 
                     if (statusCode == HttpStatus.SC_OK) {
                         return true;
@@ -97,13 +107,15 @@ public class ServerProcesses {
     }
 
     public boolean downloadFile(String fileName) {
-        String url = baseUrl.concat("/").concat(fileName);
+        String url = baseUrl.concat("/").concat(URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
-            String encodedAuthenticate = encodeAuthenticateHeader("user", "password");
+            String encodedAuthenticate = encodeAuthenticateHeader(USER, PASSWORD);
             get.addHeader(HEADER_AUTHENTICATE, AUTHENTICATE_PREFIX + encodedAuthenticate);
             try (CloseableHttpResponse response = httpClient.execute(get)) {
                 int statusCode = response.getStatusLine().getStatusCode();
+                System.out.println(statusCode);
                 if (statusCode == HttpStatus.SC_OK) {
                     InputStream content = response.getEntity().getContent();
                     Resource resource = new Resource();
@@ -118,11 +130,12 @@ public class ServerProcesses {
     }
 
     private boolean isFileExistInServer(String fileName) {
-        // url must be: /file/{fileName}/check
+        // url must be: /files/{fileName}/check
         String url = baseUrl.concat("/").concat(fileName).concat("/").concat("check");
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet get = new HttpGet(url);
-            String encodedAuthenticate = encodeAuthenticateHeader("user", "password");
+            String encodedAuthenticate = encodeAuthenticateHeader(USER, PASSWORD);
             get.addHeader(HEADER_AUTHENTICATE, AUTHENTICATE_PREFIX + encodedAuthenticate);
             try (CloseableHttpResponse httpResponse = httpClient.execute(get)) {
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
@@ -142,6 +155,5 @@ public class ServerProcesses {
         String token = username + ":" + password;
         return Base64.getEncoder().encodeToString(token.getBytes());
     }
-
 
 }

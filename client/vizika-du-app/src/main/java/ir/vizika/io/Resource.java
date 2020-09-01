@@ -22,8 +22,6 @@ public class Resource {
 
         String path = baseDirectory.getAbsolutePath().concat(File.separator).concat(fileName);
 
-        System.out.println(baseDownloadPath);
-        System.out.println(path);
         try {
             Files.write(Paths.get(path), content.readAllBytes());
         } catch (IOException e) {
