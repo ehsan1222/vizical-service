@@ -60,12 +60,12 @@ public class EditorMenuBar extends JMenuBar
 
 		menu.add(editor.bind(mxResources.get("save"), new SaveAction(false), "/com/mxgraph/examples/swing/images/save.gif"));
 		menu.add(editor.bind(mxResources.get("saveAs"), new SaveAction(true), "/com/mxgraph/examples/swing/images/saveas.gif"));
-		menu.add(editor.bind(mxResources.get("uploadAFile"), new UploadAction(), "/com/mxgraph/examples/swing/images/saveas.gif"));
-		menu.add(editor.bind(mxResources.get("UpdateApplication"), new UpdateAction(), "/com/mxgraph/examples/swing/images/saveas.gif"));
+		menu.add(editor.bind(mxResources.get("uploadAFile"), new UploadAction(), "/com/mxgraph/examples/swing/images/upload.png"));
+		menu.add(editor.bind(mxResources.get("UpdateApplication"), new UpdateAction(), "/com/mxgraph/examples/swing/images/updateapplications.png"));
 
 		// basic log4j config for using log in swing and return log frame show
 		JFrame jFrame = getJFrameAndSetLogSwingAppenderConfig();
-		menu.add(editor.bind(mxResources.get("showLogs"), new ShowLogAction(jFrame), "/com/mxgraph/examples/swing/images/saveas.gif"));
+		menu.add(editor.bind(mxResources.get("showLogs"), new ShowLogAction(jFrame), "/com/mxgraph/examples/swing/images/showlogs.png"));
 
 		menu.addSeparator();
 
