@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -56,7 +58,8 @@ public class ResourceController {
 
     @GetMapping("/{fileName}/check")
     public ResponseEntity<?> checkFileExist(@PathVariable("fileName") String fileName) {
-        boolean checkExist = storageService.checkFileExist(fileName);
+        String decodedFilename = URLDecoder.decode(fileName, StandardCharsets.UTF_8);
+        boolean checkExist = storageService.checkFileExist(decodedFilename);
         if (checkExist) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
